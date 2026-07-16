@@ -1,0 +1,8 @@
+#My(Abhisek) Requirements
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+python-multipart
+httpx
+requests
