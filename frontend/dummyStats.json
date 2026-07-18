@@ -1,0 +1,91 @@
+{
+  "player_id": 1,
+  "name": "Virat Kohli",
+  "team": "India",
+  "role": "BAT",
+  "batting_style": "Right Handed Bat",
+  "bowling_style": "Right-arm Medium",
+  "image": "https://documents.iplt20.com/ipl/IPLHeadshot2025/2.png",
+  "credits": 10.5,
+
+  "recent_form": {
+    "last_matches_fantasy_points": [92, 105, 78, 110, 96],
+    "average_fantasy_points": 96.2,
+    "recent_runs": [84, 67, 45, 102, 71],
+    "recent_wickets": [0, 0, 0, 0, 0]
+  },
+
+  "ai_analysis": {
+    "predicted_fantasy_score": 98.4,
+    "ai_confidence": 96.7,
+    "selection_reason": [
+      "Excellent recent batting form",
+      "Outstanding record against England",
+      "Top-order batter on a batting-friendly pitch",
+      "High consistency in ODI cricket",
+      "Safe captain choice"
+    ]
+  },
+
+  "batting_stats": {
+    "test": {
+      "runs": "9230",
+      "average": "46.85",
+      "strike_rate": "55.60",
+      "centuries": "30",
+      "fifties": "31"
+    },
+    "odi": {
+      "runs": "14181",
+      "average": "58.18",
+      "strike_rate": "93.54",
+      "centuries": "51",
+      "fifties": "74"
+    },
+    "t20": {
+      "runs": "4188",
+      "average": "48.69",
+      "strike_rate": "137.04",
+      "centuries": "1",
+      "fifties": "38"
+    },
+    "ipl": {
+      "runs": "8661",
+      "average": "39.54",
+      "strike_rate": "132.31",
+      "centuries": "8",
+      "fifties": "63"
+    }
+  },
+
+  "bowling_stats": {
+    "test": {
+      "wickets": "0",
+      "economy": "0.00",
+      "average": "0.00",
+      "strike_rate": "0.00",
+      "best_innings": "-"
+    },
+    "odi": {
+      "wickets": "5",
+      "economy": "6.22",
+      "average": "166.00",
+      "strike_rate": "160.00",
+      "best_innings": "1/15"
+    },
+    "t20": {
+      "wickets": "4",
+      "economy": "8.10",
+      "average": "52.25",
+      "strike_rate": "38.75",
+      "best_innings": "1/13"
+    },
+    "ipl": {
+      "wickets": "4",
+      "economy": "8.82",
+      "average": "92.75",
+      "strike_rate": "63.25",
+      "best_innings": "2/25"
+    }
+  }
+}
