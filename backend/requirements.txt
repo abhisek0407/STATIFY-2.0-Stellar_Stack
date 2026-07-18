@@ -1,0 +1,6 @@
+# requests
+# python-dotenv
+# ddgs
+# pydantic
+# langchain
+# langchain-core
