@@ -15,7 +15,9 @@ export default function Home() {
             priority
           ></Image>
         </div>
-        <MatchSection />
+        <div id="matches">
+          <MatchSection />
+        </div>
       </div>
       <footer className=" bg-[#06030c] border-t border-slate-800">
         <div className="max-w-7xl mx-auto py-4 px-6 flex justify-center items-center gap-2 text-gray-300 text-sm">

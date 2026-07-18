@@ -29,27 +29,37 @@ const Navbar = () => {
         </div>
         <div>
           <ul className="hidden lg:flex items-center gap-10 text-white font-medium">
-            <li className="cursor-pointer hover:text-cyan-400 transition duration-300 flex items-center gap-2 hover:scale-105">
-              <Link href="/">
-              <i className="fa-solid fa-house"></i>
-              <span>Home</span>
+            <li className="cursor-pointer hover:text-cyan-400 transition duration-300 hover:scale-105">
+              <Link href="/" className="flex items-center gap-2">
+                <i className="fa-solid fa-house"></i>
+                <span>Home</span>
               </Link>
             </li>
             <li className="cursor-pointer hover:text-cyan-400 transition duration-300 flex items-center gap-2 hover:scale-105">
-              <i className="fa-solid fa-trophy"></i>
-              <span>Matches</span>
+              <Link href="/#matches">
+                <div className="flex items-center gap-2">
+                  <i className="fa-solid fa-trophy"></i>
+                  <span>Matches</span>
+                </div>
+              </Link>
             </li>
-            <li className="cursor-pointer hover:text-cyan-400 transition duration-300 flex items-center gap-2 hover:scale-105">
-              <i className="fa-solid fa-wand-magic-sparkles"></i>
-              <span>Features</span>
+            <li className="cursor-pointer hover:text-cyan-400 transition duration-300 hover:scale-105">
+              <Link href="/features" className="flex items-center gap-2">
+                <i className="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Features</span>
+              </Link>
             </li>
-            <li className="cursor-pointer hover:text-cyan-400 transition duration-300 flex items-center gap-2 hover:scale-105">
-              <i className="fa-solid fa-robot"></i>
-              <span>How it Works</span>
+            <li className="cursor-pointer hover:text-cyan-400 transition duration-300 hover:scale-105">
+              <Link href="/howitwork" className="flex items-center gap-2">
+                <i className="fa-solid fa-robot"></i>
+                <span>How it Works</span>
+              </Link>
             </li>
-            <li className="cursor-pointer hover:text-cyan-400 transition duration-300 flex items-center gap-2 hover:scale-105 ">
+            <li className="cursor-pointer hover:text-cyan-400 transition duration-300 hover:scale-105">
+              <Link href="/contact" className="flex items-center gap-2">
               <i className="fa-solid fa-envelope"></i>
               <span>Contact</span>
+              </Link>
             </li>
           </ul>
         </div>
@@ -77,23 +87,25 @@ const Navbar = () => {
             </li>
             <li className="cursor-pointer hover:text-cyan-400 transition duration-300 flex items-center gap-2">
               <i className="fa-solid fa-trophy"></i>
-              <p onClick={() => setMenuOpen(false)}>Matches</p>
+              <Link href="/#matches" onClick={() => setMenuOpen(false)}>
+                Matches
+              </Link>
             </li>
             <li className="cursor-pointer hover:text-cyan-400 transition duration-300 flex items-center gap-2">
               <i className="fa-solid fa-wand-magic-sparkles"></i>
-              <Link href="/" onClick={() => setMenuOpen(false)}>
+              <Link href="/features" onClick={() => setMenuOpen(false)}>
                 Features
               </Link>
             </li>
             <li className="cursor-pointer hover:text-cyan-400 transition duration-300 flex items-center gap-2">
               <i className="fa-solid fa-robot"></i>
-              <Link href="/" onClick={() => setMenuOpen(false)}>
+              <Link href="/howitwork" onClick={() => setMenuOpen(false)}>
                 How it works
               </Link>
             </li>
             <li className="cursor-pointer hover:text-cyan-400 transition duration-300 flex items-center gap-2">
               <i className="fa-solid fa-envelope"></i>
-              <Link href="/" onClick={() => setMenuOpen(false)}>
+              <Link href="/contact" onClick={() => setMenuOpen(false)}>
                 Contact
               </Link>
             </li>
