@@ -1,6 +1,10 @@
-# requests
-# python-dotenv
-# ddgs
-# pydantic
-# langchain
-# langchain-core
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+python-multipart
+httpx
+requests
+ddgs
+langchain
+langchain-core
