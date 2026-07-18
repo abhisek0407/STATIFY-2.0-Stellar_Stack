@@ -1,0 +1,96 @@
+{
+  "matches": [
+    {
+      "match_id": 101,
+      "team1": "India",
+      "team2": "England",
+      "series": "India Tour of England 2026",
+      "match_type": "Test",
+      "venue": "Lord's, London",
+      "match_date": "2026-07-17",
+      "match_time": "3:30 PM IST",
+      "team1_logo": "https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg",
+      "team2_logo": "https://upload.wikimedia.org/wikipedia/en/b/be/Flag_of_England.svg",
+      "status": "Live"
+    },
+    {
+      "match_id": 102,
+      "team1": "Australia",
+      "team2": "Pakistan",
+      "series": "Australia Tour of Pakistan 2026",
+      "match_type": "ODI",
+      "venue": "National Stadium, Karachi",
+      "match_date": "2026-07-17",
+      "match_time": "2:00 PM IST",
+      "team1_logo": "https://upload.wikimedia.org/wikipedia/commons/b/b9/Flag_of_Australia.svg",
+      "team2_logo": "https://upload.wikimedia.org/wikipedia/commons/3/32/Flag_of_Pakistan.svg",
+      "status": "Live"
+    },
+    {
+      "match_id": 103,
+      "team1": "South Africa",
+      "team2": "New Zealand",
+      "series": "ICC Champions Trophy Warm-up 2026",
+      "match_type": "ODI",
+      "venue": "Newlands, Cape Town",
+      "match_date": "2026-07-18",
+      "match_time": "1:30 PM IST",
+      "team1_logo": "https://upload.wikimedia.org/wikipedia/commons/a/af/Flag_of_South_Africa.svg",
+      "team2_logo": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Flag_of_New_Zealand.svg",
+      "status": "Upcoming"
+    },
+    {
+      "match_id": 104,
+      "team1": "Sri Lanka",
+      "team2": "Bangladesh",
+      "series": "Asia Cup 2026",
+      "match_type": "T20",
+      "venue": "R. Premadasa Stadium, Colombo",
+      "match_date": "2026-07-18",
+      "match_time": "7:00 PM IST",
+      "team1_logo": "https://upload.wikimedia.org/wikipedia/commons/1/11/Flag_of_Sri_Lanka.svg",
+      "team2_logo": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Flag_of_Bangladesh.svg",
+      "status": "Upcoming"
+    },
+    {
+      "match_id": 105,
+      "team1": "Pakistan",
+      "team2": "England",
+      "series": "Pakistan Tour of England 2026",
+      "match_type": "T20",
+      "venue": "Old Trafford, Manchester",
+      "match_date": "2026-07-19",
+      "match_time": "8:30 PM IST",
+      "team1_logo": "https://upload.wikimedia.org/wikipedia/commons/3/32/Flag_of_Pakistan.svg",
+      "team2_logo": "https://upload.wikimedia.org/wikipedia/en/b/be/Flag_of_England.svg",
+      "status": "Upcoming"
+    },
+    {
+      "match_id": 106,
+      "team1": "India",
+      "team2": "Australia",
+      "series": "Border-Gavaskar Trophy 2026",
+      "match_type": "Test",
+      "venue": "Melbourne Cricket Ground",
+      "match_date": "2026-07-15",
+      "match_time": "5:00 AM IST",
+      "team1_logo": "https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg",
+      "team2_logo": "https://upload.wikimedia.org/wikipedia/commons/b/b9/Flag_of_Australia.svg",
+      "status": "Completed"
+    },
+    {
+      "match_id": 107,
+      "team1": "England",
+      "team2": "New Zealand",
+      "series": "England Summer Series 2026",
+      "match_type": "T20",
+      "venue": "The Oval, London",
+      "match_date": "2026-07-16",
+      "match_time": "11:00 PM IST",
+      "team1_logo": "https://upload.wikimedia.org/wikipedia/en/b/be/Flag_of_England.svg",
+      "team2_logo": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Flag_of_New_Zealand.svg",
+      "status": "Completed"
+    }
+  ]
+}
+

@@ -1,0 +1,136 @@
+{
+  "session_id": "8a7fd34b-1122-45c1-9a2e-98a4d5f6b7c8",
+  "match": {
+    "match_id": 101,
+    "team1": "India",
+    "team2": "England",
+    "series": "India Tour of England 2026",
+    "match_type": "ODI",
+    "venue": "Lord's, London",
+    "match_date": "2026-07-17",
+    "match_time": "3:30 PM IST",
+    "team1_logo": "https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg",
+    "team2_logo": "https://upload.wikimedia.org/wikipedia/en/b/be/Flag_of_England.svg",
+    "status": "Live"
+  },
+
+  "weather": {
+    "temperature": 26.4,
+    "humidity": 71,
+    "condition": "Partly Cloudy",
+    "wind_speed": 18.5
+  },
+
+  "pitch": {
+    "type": "Batting Friendly",
+    "description": "The Lord's pitch is expected to provide consistent bounce with good carry. Batters are likely to dominate during the first innings, while fast bowlers may get some swing during the opening overs due to the cloudy weather. Spinners may become effective during the middle overs."
+  },
+
+  "fantasy_team": [
+    {
+      "player_id": 1,
+      "name": "Yashasvi Jaiswal",
+      "team": "India",
+      "role": "BAT",
+      "image": "https://h.cricapi.com/img/players/yashasvi.jpg",
+      "captain": true,
+      "vice_captain": false
+    },
+    {
+      "player_id": 2,
+      "name": "KL Rahul",
+      "team": "India",
+      "role": "WK",
+      "image": "https://h.cricapi.com/img/players/klrahul.jpg",
+      "captain": false,
+      "vice_captain": true
+    },
+    {
+      "player_id": 3,
+      "name": "Shubman Gill",
+      "team": "India",
+      "role": "BAT",
+      "image": "https://h.cricapi.com/img/players/gill.jpg",
+      "captain": false,
+      "vice_captain": false
+    },
+    {
+      "player_id": 4,
+      "name": "Virat Kohli",
+      "team": "India",
+      "role": "BAT",
+      "image": "https://h.cricapi.com/img/players/virat.jpg",
+      "captain": false,
+      "vice_captain": false
+    },
+    {
+      "player_id": 5,
+      "name": "Rishabh Pant",
+      "team": "India",
+      "role": "WK",
+      "image": "https://h.cricapi.com/img/players/pant.jpg",
+      "captain": false,
+      "vice_captain": false
+    },
+    {
+      "player_id": 6,
+      "name": "Hardik Pandya",
+      "team": "India",
+      "role": "AR",
+      "image": "https://h.cricapi.com/img/players/hardik.jpg",
+      "captain": false,
+      "vice_captain": false
+    },
+    {
+      "player_id": 7,
+      "name": "Ravindra Jadeja",
+      "team": "India",
+      "role": "AR",
+      "image": "https://h.cricapi.com/img/players/jadeja.jpg",
+      "captain": false,
+      "vice_captain": false
+    },
+    {
+      "player_id": 8,
+      "name": "Jasprit Bumrah",
+      "team": "India",
+      "role": "BOWL",
+      "image": "https://h.cricapi.com/img/players/bumrah.jpg",
+      "captain": false,
+      "vice_captain": false
+    },
+    {
+      "player_id": 9,
+      "name": "Mohammed Siraj",
+      "team": "India",
+      "role": "BOWL",
+      "image": "https://h.cricapi.com/img/players/siraj.jpg",
+      "captain": false,
+      "vice_captain": false
+    },
+    {
+      "player_id": 10,
+      "name": "Joe Root",
+      "team": "England",
+      "role": "BAT",
+      "image": "https://h.cricapi.com/img/players/root.jpg",
+      "captain": false,
+      "vice_captain": false
+    },
+    {
+      "player_id": 11,
+      "name": "Jofra Archer",
+      "team": "England",
+      "role": "BOWL",
+      "image": "https://h.cricapi.com/img/players/archer.jpg",
+      "captain": false,
+      "vice_captain": false
+    }
+  ],
+
+  "predicted_fantasy_score": 972.8,
+
+  "ai_confidence": 96.7,
+
+  "summary": "The AI selected this Fantasy XI after analyzing player form, head-to-head statistics, venue history, weather conditions, pitch behavior, and injury reports. Yashasvi Jaiswal has been chosen as captain due to his exceptional recent batting form and strong record against England. KL Rahul is selected as vice-captain because of his consistency and wicket-keeping points. The bowling attack is optimized to exploit the early swing conditions expected at Lord's, while the batting lineup is balanced to maximize fantasy points throughout the innings."
+}
