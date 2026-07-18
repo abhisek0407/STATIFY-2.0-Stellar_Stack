@@ -1,7 +1,7 @@
 from tools import get_match_fantasy_performance, get_matches, get_player_stats, get_weather, get_pitch_report, get_player_availability, get_injury_updates, get_news
 
-# matches = get_matches.invoke({})
-# print(matches)
+matches = get_matches.invoke({})
+print(matches)
 
 
 # match_id = matches["matches"][0]["match_id"] 

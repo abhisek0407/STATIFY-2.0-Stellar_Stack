@@ -698,7 +698,7 @@ def get_pitch_report(venue: str, max_results: int = 5) -> Dict[str, Any]:
 @tool
 def get_matches() -> Dict[str, Any]:
     """
-    Fetch all live and upcoming cricket matches.
+    Fetch live and upcoming cricket matches.
     """
 
     if not CRIC_API_KEY:
@@ -707,65 +707,145 @@ def get_matches() -> Dict[str, Any]:
             "message": "CRIC_API_KEY not found."
         }
 
-    url = f"{BASE_URL}/currentMatches"
+    DEFAULT_LOGO = "https://h.cricapi.com/img/icon512.png"
 
-    params = {
-        "apikey": CRIC_API_KEY,
-        "offset": 0
-    }
-
-    data = make_request(url, params)
-
-    if not data.get("success", True):
-        return data
-
-    if "data" not in data:
-        return {
-            "success": False,
-            "message": "Unable to fetch current matches."
-        }
-
-    matches = []
-
-    for match in data["data"]:
-
-        if match.get("matchEnded", False):
-            continue
+    def format_match(match: Dict[str, Any], status: str) -> Dict[str, Any]:
 
         teams = match.get("teams", [])
         team_info = match.get("teamInfo", [])
+        name = match.get("name", "")
 
-        team1_logo = None
-        team2_logo = None
+        # ---------------- TEAM NAMES ---------------- #
 
-        if len(team_info) > 0:
-            team1_logo = team_info[0].get("img")
+        team1 = teams[0] if len(teams) > 0 else None
+        team2 = teams[1] if len(teams) > 1 else None
 
-        if len(team_info) > 1:
-            team2_logo = team_info[1].get("img")
+        if team1 and team1.lower() == "tbc":
+            team1 = "TBD"
 
-        status = "Upcoming"
+        if team2 and team2.lower() == "tbc":
+            team2 = "TBD"
 
-        if match.get("matchStarted"):
-            status = "Live"
+        # ---------------- TEAM LOGOS ---------------- #
 
-        matches.append({
+        logo_map = {
+            info.get("name"): info.get("img")
+            for info in team_info
+        }
+
+        team1_logo = logo_map.get(team1, DEFAULT_LOGO)
+        team2_logo = logo_map.get(team2, DEFAULT_LOGO)
+
+        # ---------------- SERIES ---------------- #
+
+        series = match.get("series")
+
+        if not series and name:
+            parts = [p.strip() for p in name.split(",")]
+            if len(parts) >= 3:
+                series = parts[-1]
+            elif len(parts) == 2:
+                series = parts[-1]
+            else:
+                series = None
+
+        # ---------------- MATCH TYPE ---------------- #
+
+        match_type = match.get("matchType")
+
+        if match_type:
+            match_type = match_type.upper()
+        else:
+            lower_name = name.lower()
+
+            if "test" in lower_name:
+                match_type = "TEST"
+            elif "odi" in lower_name:
+                match_type = "ODI"
+            elif "t20" in lower_name:
+                match_type = "T20"
+            elif "t10" in lower_name:
+                match_type = "T10"
+            else:
+                match_type = "UNKNOWN"
+
+        return {
             "match_id": match.get("id"),
-            "team1": teams[0] if len(teams) > 0 else None,
-            "team2": teams[1] if len(teams) > 1 else None,
-            "series": match.get("series"),
-            "match_type": str(match.get("matchType", "")).upper(),
+            "team1": team1,
+            "team2": team2,
+            "series": series,
+            "match_type": match_type,
             "venue": match.get("venue"),
             "match_date": match.get("date"),
             "match_time": match.get("dateTimeGMT"),
             "team1_logo": team1_logo,
             "team2_logo": team2_logo,
             "status": status
-        })
+        }
+
+    live_matches = []
+    upcoming_matches = []
+    seen = set()
+
+    # ---------------- LIVE MATCHES ---------------- #
+
+    live_data = make_request(
+        f"{BASE_URL}/currentMatches",
+        {
+            "apikey": CRIC_API_KEY,
+            "offset": 0
+        }
+    )
+
+    if live_data.get("success", True) and "data" in live_data:
+
+        for match in live_data["data"]:
+
+            if match.get("matchStarted") and not match.get("matchEnded"):
+
+                live_matches.append(
+                    format_match(match, "Live")
+                )
+
+                seen.add(match.get("id"))
+
+    # ---------------- UPCOMING MATCHES ---------------- #
+
+    upcoming_data = make_request(
+        f"{BASE_URL}/matches",
+        {
+            "apikey": CRIC_API_KEY,
+            "offset": 0
+        }
+    )
+
+    if upcoming_data.get("success", True) and "data" in upcoming_data:
+
+        for match in upcoming_data["data"]:
+
+            if match.get("id") in seen:
+                continue
+
+            if (
+                not match.get("matchStarted", False)
+                and not match.get("matchEnded", False)
+            ):
+
+                upcoming_matches.append(
+                    format_match(match, "Upcoming")
+                )
+
+                seen.add(match.get("id"))
+
+    upcoming_matches.sort(
+        key=lambda x: x.get("match_time") or ""
+    )
 
     return {
         "success": True,
-        "matches": matches
+        "live_matches": live_matches,
+        "upcoming_matches": upcoming_matches[:10],
+        "recent_matches": []
     }
 
 AVAILABLE_TOOLS = [

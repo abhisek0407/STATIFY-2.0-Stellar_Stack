@@ -1,34 +1,117 @@
 from pydantic import BaseModel, Field,AnyUrl
 from typing import List, Optional, Annotated,Literal
 from datetime import date,time
-class MatchResponse(BaseModel):
-    match_id:Annotated[int, Field(description="Unique match identifier",examples=[101])]
-    team1:Annotated[str,Field(description="Name of the first team", examples=["India"])]
-    team2:Annotated[str,Field(description="Name of the Second team", examples=["England"])]
-    series: Annotated[
-    str,
-    Field(
-        description="Tournament or series name",
-        examples=["India Tour of England 2026"]
-    )
-    ]
-    match_type:Annotated[Literal['Test','ODI','T20','T10'],Field(description="Match Format")]
-    venue:Annotated[str,Field(description="Venue of the match",examples=["Lord's, London"])]
-    match_date: Annotated[date,Field(description="Date of the Match")]
-    match_time:Annotated[str,Field(description="Scheduled start time of the match", examples=["7:30 PM IST"])]
-    team1_logo:Annotated[AnyUrl,Field(description="Logo URL of team1")]
-    team2_logo:Annotated[AnyUrl,Field(description="Logo URL of team2")]
-    status:Annotated[Literal['Upcoming','Live','Completed'],Field(description="Current match status")]
 
-class MatchListResponse(BaseModel):
-    matches: List[MatchResponse]
+class MatchResponse(BaseModel):  #change
+
+    match_id: Annotated[
+        str,
+        Field(
+            description="Unique match identifier",
+            examples=["f10f3998-db68-46b1-b603-2c48fbc7a0d1"]
+        )
+    ]
+
+    team1: Annotated[
+        Optional[str],
+        Field(
+            description="Name of the first team",
+            examples=["India"]
+        )
+    ]
+
+    team2: Annotated[
+        Optional[str],
+        Field(
+            description="Name of the second team",
+            examples=["England"]
+        )
+    ]
+
+    series: Annotated[
+        Optional[str],
+        Field(
+            description="Tournament or series name",
+            examples=["India Tour of England 2026"]
+        )
+    ]
+
+    match_type: Annotated[
+        Optional[Literal["TEST", "ODI", "T20", "T10", "UNKNOWN"]],
+        Field(description="Match format")
+    ]
+
+    venue: Annotated[
+        Optional[str],
+        Field(
+            description="Venue of the match",
+            examples=["Lord's, London"]
+        )
+    ]
+
+    match_date: Annotated[
+        Optional[str],
+        Field(
+            description="Match date",
+            examples=["2026-07-18"]
+        )
+    ]
+
+    match_time: Annotated[
+        Optional[str],
+        Field(
+            description="Scheduled match start time (ISO format)",
+            examples=["2026-07-18T09:30:00"]
+        )
+    ]
+
+    team1_logo: Annotated[
+        Optional[AnyUrl],
+        Field(description="Logo URL of team1")
+    ]
+
+    team2_logo: Annotated[
+        Optional[AnyUrl],
+        Field(description="Logo URL of team2")
+    ]
+
+    status: Annotated[
+        Literal["Upcoming", "Live", "Completed"],
+        Field(description="Current match status")
+    ]
+
+class MatchListResponse(BaseModel):  #change
+
+    success: Annotated[
+        bool,
+        Field(
+            description="Whether the API request was successful",
+            examples=[True]
+        )
+    ]
+
+    live_matches: Annotated[
+        List[MatchResponse],
+        Field(description="Currently live matches")
+    ]
+
+    upcoming_matches: Annotated[
+        List[MatchResponse],
+        Field(description="Upcoming scheduled matches")
+    ]
+
+    recent_matches: Annotated[
+        List[MatchResponse],
+        Field(description="Recently completed matches")
+    ]
     
-class AnalyzeRequest(BaseModel):
-     match_id: Annotated[
-        int,
+class AnalyzeRequest(BaseModel):  #change
+
+    match_id: Annotated[
+        str,
         Field(
             description="Unique identifier of the selected match",
-            examples=[101]
+            examples=["f10f3998-db68-46b1-b603-2c48fbc7a0d1"]
         )
     ]
 
@@ -223,7 +306,7 @@ class AIAnalysis(BaseModel):
 class PlayerResponse(BaseModel):
 
     player_id: Annotated[
-        int,
+        str,  #change (made string from integer)
         Field(
             description="Unique player identifier",
             examples=[1]
