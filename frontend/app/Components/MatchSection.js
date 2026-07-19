@@ -4,7 +4,10 @@
 // import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getMatches } from "../services/api";
+import { useRouter } from "next/navigation";
+
 const MatchSection = () => {
+  const router = useRouter();
   // const liveMatches = data.matches.filter((match) => match.status === "Live");
 
   // const upcomingMatches = data.matches.filter(
@@ -113,6 +116,7 @@ const MatchSection = () => {
       {/* Button */}
 
       <button
+        onClick={() => router.push("/dashboard")}
         className={`w-full mt-5 py-2 rounded-xl font-semibold transition ${
           completed
             ? "bg-gray-700 hover:bg-gray-600"

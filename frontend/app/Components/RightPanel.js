@@ -1,6 +1,5 @@
 import React from "react";
-import data from "../../dummyAnalyze.json";
-const RightPanel = () => {
+const RightPanel = ({ data }) => {
   return (
     <div className="flex flex-col gap-2 lg:gap-3 h-[720px] xl:h-[760px] 2xl:h-[820px] overflow-hidden">
       {/* Weather Card */}

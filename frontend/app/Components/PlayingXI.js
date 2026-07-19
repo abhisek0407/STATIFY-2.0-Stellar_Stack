@@ -1,9 +1,9 @@
 import React from "react";
-import data from "../../dummyAnalyze.json";
 import Image from "next/image";
 import { useState } from "react";
 import StatsPage from "./StatsPage";
-const PlayingXI = () => {
+
+const PlayingXI = ({ data }) => {
   const fantasyTeam = data.fantasy_team;
   const matchId = data.match.match_id;
   const [openModal, setOpenModal] = useState(false);
@@ -30,7 +30,7 @@ const PlayingXI = () => {
         {/* Cricket Ground */}
 
         <div
-          className="flex-1 overflow-y-auto rounded-2xl  bg-cover bg-center p-2 sm:p-3 lg:p-6"
+          className="flex-1 overflow-y-auto rounded-2xl bg-cover bg-center p-2 sm:p-3 lg:p-6"
           style={{
             backgroundImage: "url('/PlayGround1.png')",
           }}
@@ -56,6 +56,12 @@ const PlayingXI = () => {
                 {player.vice_captain && (
                   <div className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-orange-500 flex justify-center items-center text-white text-[10px] font-bold z-20">
                     VC
+                  </div>
+                )}
+
+                {player.cumulative_score != null && (
+                  <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-indigo-600 flex justify-center items-center text-white text-[10px] font-bold z-20 shadow-md border border-white" title={`AI Score: ${player.cumulative_score}`}>
+                    {player.cumulative_score}
                   </div>
                 )}
 
@@ -90,6 +96,12 @@ const PlayingXI = () => {
                 }}
                 className="relative cursor-pointer group flex flex-col items-center"
               >
+                {player.cumulative_score != null && (
+                  <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-indigo-600 flex justify-center items-center text-white text-[10px] font-bold z-20 shadow-md border border-white" title={`AI Score: ${player.cumulative_score}`}>
+                    {player.cumulative_score}
+                  </div>
+                )}
+
                 <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 2xl:w-28 2xl:h-28 rounded-full overflow-hidden border-4 border-cyan-500 group-hover:scale-105 transition">
                   <img
                     src={player.image}
@@ -121,6 +133,12 @@ const PlayingXI = () => {
                 }}
                 className="relative cursor-pointer group flex flex-col items-center"
               >
+                {player.cumulative_score != null && (
+                  <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-indigo-600 flex justify-center items-center text-white text-[10px] font-bold z-20 shadow-md border border-white" title={`AI Score: ${player.cumulative_score}`}>
+                    {player.cumulative_score}
+                  </div>
+                )}
+
                 <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 2xl:w-28 2xl:h-28 rounded-full overflow-hidden border-4 border-cyan-500 group-hover:scale-105 transition">
                   <img
                     src={player.image}

@@ -1,16 +1,63 @@
 "use client";
-import React from "react";
-import data from "../../dummyAnalyze.json";
-import chatData from "../../dummyChat.json";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ChatAssistant from "../Components/ChatAssistant";
 import PlayingXI from "../Components/PlayingXI";
 import RightPanel from "../Components/RightPanel";
 import MatchAnalysis from "../Components/MatchAnalysis";
+
 const Dashboard = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAnalysis = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/v1/analyze", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ match_id: "101" }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        setData(result);
+      } catch (err) {
+        console.error("Error fetching analysis:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalysis();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#09041b] text-white gap-6">
+        <div className="w-16 h-16 border-4 border-cyan-500 border-t-transparent border-solid rounded-full animate-spin"></div>
+        <h2 className="text-2xl font-semibold animate-pulse">AI is analyzing the match and building your Fantasy Team...</h2>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#09041b] text-white">
+        <h2 className="text-2xl font-bold text-red-500">Failed to load data: {error}</h2>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <div className=" bg-[#09041b] px-5 py-3">
+      <div className="bg-[#09041b] px-5 py-3">
         <div className="flex justify-center mt-4">
           <div className="w-full max-w-[1800px] mx-auto bg-gradient-to-r from-[#17103c] to-[#121827] rounded-2xl border border-indigo-700 shadow-xl p-4 md:p-6">
             {/* Series */}
@@ -89,8 +136,8 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-        {/* Dashboard Content */}
 
+        {/* Dashboard Content */}
         <div className="mt-4">
           <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
             {/* Right Side */}
@@ -98,35 +145,34 @@ const Dashboard = () => {
               <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
                 {/* Playing XI */}
                 <div className="md:col-span-5">
-                  <PlayingXI />
+                  <PlayingXI data={data} />
                 </div>
 
                 {/* Right Panel */}
                 <div className="md:col-span-2">
-                  <RightPanel />
+                  <RightPanel data={data} />
                 </div>
               </div>
             </div>
 
             {/* Chat */}
             <div className="order-2 lg:order-1 lg:col-span-3">
-              <ChatAssistant />
+              <ChatAssistant sessionId={data.session_id} />
             </div>
           </div>
 
           {/* AI Match Analysis */}
           <div className="mt-4">
-            <MatchAnalysis />
+            <MatchAnalysis data={data} />
           </div>
         </div>
       </div>
 
-      <footer className=" bg-[#06030c] border-t border-slate-800">
+      <footer className="bg-[#06030c] border-t border-slate-800">
         <div className="max-w-7xl mx-auto py-4 px-6 flex justify-center items-center gap-2 text-gray-300 text-sm">
           <i className="fa-regular fa-copyright"></i>
           <p>
-            {new Date().getFullYear()}{" "}
-            <span className="font-semibold text-cyan-400">FantasyPilot</span>.
+            {new Date().getFullYear()} <span className="font-semibold text-cyan-400">FantasyPilot</span>.
             All rights reserved.
           </p>
         </div>

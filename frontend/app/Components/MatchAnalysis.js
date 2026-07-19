@@ -1,7 +1,5 @@
 import React from "react";
-import data from "../../dummyAnalyze.json";
-
-const MatchAnalysis = () => {
+const MatchAnalysis = ({ data }) => {
   return (
     <div className="bg-gradient-to-r from-[#17103c] to-[#121827] rounded-2xl border border-indigo-700 shadow-xl overflow-hidden h-full">
       <div className=" items-center">
