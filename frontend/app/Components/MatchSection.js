@@ -1,19 +1,51 @@
 "use client";
 
-import data from "../../dummyData.json";
-import Image from "next/image";
-
+// import data from "../../dummyData.json";
+// import Image from "next/image";
+import { useEffect, useState } from "react";
+import { getMatches } from "../services/api";
 const MatchSection = () => {
-  const liveMatches = data.matches.filter((match) => match.status === "Live");
+  // const liveMatches = data.matches.filter((match) => match.status === "Live");
 
-  const upcomingMatches = data.matches.filter(
-    (match) => match.status === "Upcoming",
-  );
+  // const upcomingMatches = data.matches.filter(
+  //   (match) => match.status === "Upcoming",
+  // );
 
-  const completedMatches = data.matches.filter(
-    (match) => match.status === "Completed",
-  );
+  // const completedMatches = data.matches.filter(
+  //   (match) => match.status === "Completed",
+  // );
+  const [matches, setMatches] = useState({
+    live_matches: [],
+    upcoming_matches: [],
+    recent_matches: [],
+  });
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    async function fetchMatches() {
+      try {
+        const data = await getMatches();
+        setMatches(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchMatches();
+  }, []);
+  const liveMatches = matches.live_matches;
+  const upcomingMatches = matches.upcoming_matches;
+  const completedMatches = matches.recent_matches;
+  if (error) {
+    return (
+      <section className="bg-[#09041b] min-h-[400px] flex justify-center items-center">
+        <p className="text-red-500 text-xl">{error}</p>
+      </section>
+    );
+  }
   const MatchCard = ({ match, completed }) => (
     <div className="bg-[#121827] rounded-2xl p-6 shadow-lg border border-slate-700 hover:border-cyan-500 transition duration-300">
       {/* Teams */}
@@ -91,7 +123,13 @@ const MatchSection = () => {
       </button>
     </div>
   );
-
+  if (loading) {
+    return (
+      <section className="bg-[#09041b] min-h-[400px] flex justify-center items-center">
+        <p className="text-white text-2xl">Loading Matches...</p>
+      </section>
+    );
+  }
   return (
     <section className="bg-[#09041b] px-8 py-12">
       {/* Live */}

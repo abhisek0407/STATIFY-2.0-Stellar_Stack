@@ -13,7 +13,7 @@ from tools import AVAILABLE_TOOLS
 from pathlib import Path
 
 try:
-    from RAG.tool import initialize_rag, retrieve_context, KNOWLEDGE_DIR
+    from tools import initialize_rag, retrieve_context, KNOWLEDGE_DIR
     # Initialize RAG on startup
     initialize_rag(KNOWLEDGE_DIR)
 except Exception as e:
