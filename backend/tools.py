@@ -927,22 +927,68 @@ def get_matches() -> Dict[str, Any]:
         "recent_matches": []
     }
 
+@tool
+def get_match_squad(match_id: str) -> Dict[str, Any]:
+    """
+    Fetch the list of players (squad) available for a specific match.
+    Use this to know exactly which players you can select from.
+    """
+    if not CRIC_API_KEY:
+        return {
+            "success": False,
+            "message": "CRIC_API_KEY not found."
+        }
+
+    url = f"{BASE_URL}/match_squad"
+    params = {
+        "apikey": CRIC_API_KEY,
+        "id": match_id
+    }
+
+    data = make_request(url, params)
+
+    if not data.get("success", True) and "status" in data and data["status"] != "success":
+        return {
+            "success": False,
+            "message": data.get("reason", "Unable to fetch match squad.")
+        }
+
+    if "data" not in data or not data["data"]:
+        return {
+            "success": False,
+            "message": "Squad data not available for this match yet."
+        }
+
+    # Extract all players from the teams
+    all_players = []
+    for team in data["data"]:
+        team_name = team.get("teamName", "Unknown Team")
+        players = team.get("players", [])
+        for p in players:
+            all_players.append({
+                "player_id": p.get("id"),
+                "name": p.get("name"),
+                "role": p.get("role"),
+                "team": team_name
+            })
+
+    return {
+        "success": True,
+        "match_id": match_id,
+        "total_players": len(all_players),
+        "players": all_players
+    }
+
 AVAILABLE_TOOLS = [
     get_player_stats,
-
     get_match_fantasy_performance,
-
     get_weather,
-
     get_news,
-
     get_injury_updates,
-
     get_player_availability,
-
     get_pitch_report,
-
-    get_matches
+    get_matches,
+    get_match_squad
 ]
 
 #Member-3 RAG part work

@@ -286,9 +286,11 @@ You have access to a set of specialized tools:
 3. get_injury_updates / get_player_availability / get_news: To fetch the latest contextual updates on players.
 4. search_knowledge_base: Queries local PDFs for advanced RAG data (stadium stats, weather effects, injury severity).
 5. secret_recipe_evaluation: A proprietary algorithm that calculates a player's fantasy value based on live and RAG stats.
+6. get_match_squad: Fetches the exact list of players playing in a specific match.
 
 WORKFLOW RULES:
-- Think step-by-step. Before picking a player, gather live stats AND use `search_knowledge_base` to fetch venue/injury/weather data from PDFs.
+- Think step-by-step. FIRST, use `get_match_squad` to fetch the exact players playing in the match. ONLY select players from this list. Do NOT invent or select players that are not in the returned squad.
+- Before picking a player, gather live stats AND use `search_knowledge_base` to fetch venue/injury/weather data from PDFs.
 - Based on the unstructured text from the PDFs, infer the values for the RAG arguments (like batting_friendly, spin_benefit, etc.) needed for the secret recipe.
 - Use `secret_recipe_evaluation` passing all gathered stats and context to generate the matrix score.
 - If the tool result has `"is_available": false`, NEVER select that player, regardless of any other tag or score shown.
