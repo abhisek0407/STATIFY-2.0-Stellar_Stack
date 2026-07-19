@@ -15,6 +15,7 @@ load_dotenv()
 
 CRIC_API_KEY = os.getenv("CRIC_API_KEY")
 BASE_URL = "https://api.cricapi.com/v1"
+DEFAULT_PLAYER_IMAGE = "https://h.cricapi.com/img/icon512.png"
 HEADERS = {
     "User-Agent": "Mozilla/5.0"
 }
@@ -158,9 +159,69 @@ def search_player(player_name: str) -> Optional[str]:
 
     return players[0]["id"]
 
+def build_recent_form(
+    player_id: str,
+    match_id: str,
+    ruleset: int = 0
+) -> Dict[str, Any]:
+    """
+    Build recent fantasy form for a player using match fantasy points.
+    """
 
+    url = f"{BASE_URL}/match_points"
+
+    params = {
+        "apikey": CRIC_API_KEY,
+        "id": match_id,
+        "ruleset": ruleset
+    }
+
+    data = make_request(url, params)
+
+    if not data.get("success", True):
+        return {
+            "last_matches_fantasy_points": [],
+            "average_fantasy_points": 0.0
+        }
+
+    if "data" not in data:
+        return {
+            "last_matches_fantasy_points": [],
+            "average_fantasy_points": 0.0
+        }
+
+    innings = data["data"].get("innings", [])
+
+    total_points = 0
+
+    for inning in innings:
+
+        for batter in inning.get("batting", []):
+
+            if str(batter.get("id")) == str(player_id):
+                total_points += batter.get("points", 0) or 0
+
+        for bowler in inning.get("bowling", []):
+
+            if str(bowler.get("id")) == str(player_id):
+                total_points += bowler.get("points", 0) or 0
+
+    return {
+
+        # Currently CricAPI provides only one match.
+        # Later replace this with last 5 matches.
+
+        "last_matches_fantasy_points": [total_points],
+
+        "average_fantasy_points": round(float(total_points), 2)
+
+    }
 @tool
-def get_player_stats(player_id: str) -> Dict[str, Any]:
+def get_player_stats(
+    player_id: str,
+    match_id: str,
+    ruleset: int = 0
+) -> Dict[str, Any]:
     """
     Fetch player statistics from CricAPI.
     """
@@ -229,9 +290,13 @@ def get_player_stats(player_id: str) -> Dict[str, Any]:
 
     role = str(player.get("role", "")).lower()
     fantasy_role = role_map.get(role, "BAT")
-
+    recent_form = build_recent_form(
+     player_id,
+     match_id,
+     ruleset
+    )
     return {
-        "success": True,
+        # "success": True,
 
         "player_id": player.get("id"),
         "name": player.get("name"),
@@ -245,12 +310,13 @@ def get_player_stats(player_id: str) -> Dict[str, Any]:
 
         "bowling_style": player.get("bowlingStyle"),
 
-        "image": player.get("playerImg"),
+        
 
+        "image": player.get("playerImg") or DEFAULT_PLAYER_IMAGE,
         # Placeholder for Member 1 / AI module
         "credits": None,
-        "recent_form": None,
         "ai_analysis": None,
+        "recent_form": recent_form,
 
         "batting_stats": {
             "test": batting_stats("test"),

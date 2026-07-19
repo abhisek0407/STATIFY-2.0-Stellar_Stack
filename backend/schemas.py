@@ -314,8 +314,6 @@ class RecentForm(BaseModel):
             examples=[88.2]
         )
     ]
-    recent_runs:List[int]
-    recent_wickets:List[int]
 class AIAnalysis(BaseModel):
 
     predicted_fantasy_score: Annotated[
