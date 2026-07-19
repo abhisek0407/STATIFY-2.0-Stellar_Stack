@@ -8,3 +8,11 @@ requests
 ddgs
 langchain
 langchain-core
+langchain-community
+langgraph
+langchain-huggingface
+langchain-text-splitters
+langchain-chroma
+pypdf
+sentence-transformers
+chromadb

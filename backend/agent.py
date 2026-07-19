@@ -1,0 +1,305 @@
+import os
+import json
+from typing import TypedDict, Annotated, List, Dict, Any
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, AIMessage
+from langchain_core.tools import tool
+from langgraph.prebuilt import create_react_agent
+from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+
+# ==========================================
+# 1. TOOLS IMPORT & INTEGRATION
+# ==========================================
+from tools import AVAILABLE_TOOLS
+from pathlib import Path
+
+try:
+    from RAG.tool import initialize_rag, retrieve_context, KNOWLEDGE_DIR
+    # Initialize RAG on startup
+    initialize_rag(KNOWLEDGE_DIR)
+except Exception as e:
+    print(f"Warning: RAG initialization failed: {e}")
+    def retrieve_context(query): return "Mock context (RAG not loaded)"
+
+@tool
+def search_knowledge_base(query: str) -> str:
+    """
+    Searches the RAG PDF database for context about stadiums, weather, and injuries.
+    Pass a specific query like 'Eden Gardens pitch report' or 'Rohit Sharma injury status'.
+    Returns unstructured text chunks.
+    """
+    try:
+        return retrieve_context(query)
+    except Exception as e:
+        return f"Error retrieving context: {e}"
+
+def safe_float(val, default=0.0):
+    try:
+        return float(val) if val is not None else default
+    except (ValueError, TypeError):
+        return default
+
+def calculate_fantasy_score(
+    player_data: Dict[str, Any],
+    match_format: str = "t20",
+    recent_fantasy_points: float = 0.0,
+    stadium_rag: Dict[str, Any] = None,
+    weather_rag: Dict[str, Any] = None,
+    live_weather: Dict[str, Any] = None,
+    injury_rag: Dict[str, Any] = None,
+    news_sentiment: str = "Neutral",
+    pitch_report_sentiment: str = "Neutral",
+    toss_result: str = "Batting First",
+    opponent_strength: str = "Average"
+) -> str:
+    """
+    Calculates the Secret Recipe Fantasy Score Matrix.
+    """
+    if stadium_rag is None: stadium_rag = {}
+    if weather_rag is None: weather_rag = {}
+    if live_weather is None: live_weather = {}
+    if injury_rag is None: injury_rag = {}
+    
+    role = player_data.get("role", "BAT").upper()
+    bowling_style = str(player_data.get("bowling_style", "")).lower()
+    is_spin = "spin" in bowling_style or "break" in bowling_style or "orthodox" in bowling_style
+    
+    fmt = match_format.lower()
+    stats = player_data.get("batting_stats", {}).get(fmt, {})
+    bowl_stats = player_data.get("bowling_stats", {}).get(fmt, {})
+
+    # 1. Base Stats Factor (Max 50) - Weighted for Format & Recent Form
+    bat_avg = safe_float(stats.get("average"))
+    bat_sr = safe_float(stats.get("strike_rate"))
+    bowl_econ = safe_float(bowl_stats.get("economy"), default=10.0)
+    bowl_sr = safe_float(bowl_stats.get("strike_rate"), default=50.0)
+    
+    if fmt == "t20":
+        bat_score = min(20, bat_avg * 0.4) + min(30, bat_sr * 0.2)
+    else:
+        bat_score = min(35, bat_avg * 0.7) + min(15, bat_sr * 0.1)
+        
+    econ_score = max(0, 25 - (bowl_econ * 2.5))
+    bsr_score = max(0, 25 - (bowl_sr * 0.8))
+    bowl_score = econ_score + bsr_score
+
+    if role in ["BAT", "WK"]: base_score = bat_score
+    elif role == "BOWL": base_score = bowl_score
+    else: base_score = (bat_score * 0.5) + (bowl_score * 0.5)
+
+    if recent_fantasy_points > 0:
+        base_score = (base_score * 0.4) + min(30.0, recent_fantasy_points * 0.15) # Form > Career
+
+    base_score = min(50.0, base_score)
+
+    # 2. Venue Suitability & Toss Factor (Max 20)
+    venue_score = 10.0
+    bat_friendly = safe_float(stadium_rag.get("batting_friendly", 5))
+    pace_friendly = safe_float(stadium_rag.get("pace_friendly", 5))
+    spin_friendly = safe_float(stadium_rag.get("spin_friendly", 5))
+    
+    if role in ["BAT", "WK"]:
+        venue_score = (bat_friendly / 10.0) * 20.0
+        if "Bowling First" in toss_result and safe_float(stadium_rag.get("chasing_record_percent", 50)) < 40:
+            venue_score -= 5.0 # Bad chasing venue
+    elif role == "BOWL":
+        if is_spin:
+            venue_score = (spin_friendly / 10.0) * 20.0
+            if "Bowling Second" in toss_result and "Heavy Dew" in stadium_rag.get("dew_factor", ""):
+                venue_score -= 8.0 # Dew hurts spinners
+        else:
+            venue_score = (pace_friendly / 10.0) * 20.0
+    else:
+        v_bowl = spin_friendly if is_spin else pace_friendly
+        venue_score = ((bat_friendly + v_bowl) / 20.0) * 20.0
+        
+    if pitch_report_sentiment == "Bullish": venue_score += 2.0
+    elif pitch_report_sentiment == "Bearish": venue_score -= 2.0
+    
+    # Matchup Modifiers
+    if opponent_strength == "Strong" and role in ["BAT", "WK"]: venue_score -= 3.0
+    if opponent_strength == "Weak": venue_score += 3.0
+    venue_score = min(20.0, max(0.0, venue_score))
+
+    # 3. Weather Benefit Factor (Max 15)
+    weather_score = 7.5
+    w_bat = safe_float(weather_rag.get("batting_benefit", 5))
+    w_pace = safe_float(weather_rag.get("pace_benefit", 5))
+    w_spin = safe_float(weather_rag.get("spin_benefit", 5))
+    
+    if role in ["BAT", "WK"]: weather_score = (w_bat / 10.0) * 15.0
+    elif role == "BOWL": weather_score = (w_spin / 10.0) * 15.0 if is_spin else (w_pace / 10.0) * 15.0
+    else: weather_score = ((w_bat + (w_spin if is_spin else w_pace)) / 20.0) * 15.0
+        
+    rain = safe_float(live_weather.get("weather", {}).get("rain", 0.0))
+    if rain > 2.0: weather_score -= 3.0
+    weather_score = min(15.0, max(0.0, weather_score))
+
+    # 4. Form & News Sentiment (Max 15)
+    news_score = 7.5
+    if news_sentiment == "Bullish": news_score = 15.0
+    elif news_sentiment == "Bearish": news_score = 0.0
+
+    # 5. Injury Penalty
+    injury_penalty = 0.0
+    decision = str(injury_rag.get("suitable_decision", "")).lower()
+    if "ruled out" in decision or "avoid" in decision: injury_penalty = -100.0
+    elif "monitor" in decision or "doubtful" in decision: injury_penalty = -20.0
+
+    cumulative_score = max(0.0, base_score + venue_score + weather_score + news_score + injury_penalty)
+    credits_cost = round((6.0 + (base_score / 50.0) * 5.0) * 2) / 2
+
+    # Advanced Tags & Scarcity
+    tags = []
+    captaincy_rating = 5.0
+    risk_profile = "Consistent"
+    scarcity_bump = False
+
+    if role == "WK" or (role == "AR" and not is_spin): 
+        scarcity_bump = True
+        cumulative_score += 5.0 # VORP bump
+
+    if role == "AR": 
+        captaincy_rating = 8.5 + (base_score / 50.0) * 1.5
+        tags.append("[All-Phase Contributor]")
+    elif role == "BAT" and bat_sr > 140:
+        captaincy_rating = 7.0 + (bat_avg / 50.0) * 3.0
+        tags.append("[Powerplay Aggressor]")
+        risk_profile = "Explosive"
+    elif role == "BOWL" and not is_spin and bowl_econ < 8.0:
+        tags.append("[Death Bowler]")
+    
+    if is_spin: tags.append("[Spin Specialist]")
+    if injury_penalty < 0: risk_profile = "High Risk (Injury)"
+
+    res = {
+        "player_name": player_data.get("name", "Unknown"),
+        "role": role,
+        "tags": tags,
+        "captaincy_rating": round(min(10.0, captaincy_rating), 1),
+        "risk_profile": risk_profile,
+        "scarcity_bump_applied": scarcity_bump,
+        "factor_matrix": {
+            "recent_form_stats": round(base_score, 2),
+            "venue_and_toss": round(venue_score, 2),
+            "weather_benefit": round(weather_score, 2),
+            "daily_news_sentiment": round(news_score, 2),
+            "injury_penalty": round(injury_penalty, 2)
+        },
+        "cumulative_score": round(cumulative_score, 2),
+        "credits_cost": credits_cost
+    }
+    return json.dumps(res, indent=2)
+
+
+@tool
+def secret_recipe_evaluation(
+    player_data_str: str,
+    match_format: str,
+    recent_fantasy_points: float,
+    stadium_rag_str: str,
+    weather_rag_str: str,
+    live_weather_str: str,
+    injury_rag_str: str,
+    news_sentiment: str,
+    pitch_report_sentiment: str,
+    toss_result: str,
+    opponent_strength: str
+) -> str:
+    """
+    Evaluates a player based on stats and context to determine a Fantasy Score and expected value.
+    Pass the JSON strings for complex objects, or empty {} if unavailable.
+    """
+    try:
+        p_data = json.loads(player_data_str) if player_data_str else {}
+        s_rag = json.loads(stadium_rag_str) if stadium_rag_str else {}
+        w_rag = json.loads(weather_rag_str) if weather_rag_str else {}
+        l_weath = json.loads(live_weather_str) if live_weather_str else {}
+        i_rag = json.loads(injury_rag_str) if injury_rag_str else {}
+        
+        return calculate_fantasy_score(
+            p_data, match_format, recent_fantasy_points, s_rag, w_rag, l_weath, i_rag,
+            news_sentiment, pitch_report_sentiment, toss_result, opponent_strength
+        )
+    except Exception as e:
+        return f"Error computing secret recipe: {e}"
+
+tools = AVAILABLE_TOOLS + [secret_recipe_evaluation, search_knowledge_base]
+
+# ==========================================
+# 2. AGENT STATE & PROMPT
+# ==========================================
+
+SYSTEM_PROMPT = """You are an elite, strategic Fantasy Sports Manager AI Agent.
+Your ultimate goal is to build, refine, and defend a highly optimized fantasy sports lineup for the user.
+
+You have access to a set of specialized tools:
+1. get_player_stats / get_match_fantasy_performance: To fetch raw numerical data for players and matches.
+2. get_weather / get_pitch_report: To get real-time environmental conditions and pitch behavior.
+3. get_injury_updates / get_player_availability / get_news: To fetch the latest contextual updates on players.
+4. search_knowledge_base: Queries local PDFs for advanced RAG data (stadium stats, weather effects, injury severity).
+5. secret_recipe_evaluation: A proprietary algorithm that calculates a player's fantasy value based on live and RAG stats.
+
+WORKFLOW RULES:
+- Think step-by-step. Before picking a player, gather live stats AND use `search_knowledge_base` to fetch venue/injury/weather data from PDFs.
+- Based on the unstructured text from the PDFs, infer the values for the RAG arguments (like batting_friendly, spin_benefit, etc.) needed for the secret recipe.
+- Use `secret_recipe_evaluation` passing all gathered stats and context to generate the matrix score.
+- Parse the recipe output to consider the player's `risk_profile`, `captaincy_rating`, `scarcity_bump_applied`, and tactical `tags` when choosing them. Use consistent players for H2H and explosive players for Grand Leagues. Use high captaincy ratings to pick your C and VC.
+- Ensure you respect the standard lineup constraints (e.g., 100 credits, 1-2 WK, 3-5 BAT, 1-4 AR, 3-5 BOWL) using the dynamic `credits_cost` returned by the recipe.
+- Explain your reasoning for *why* a player was chosen based on the advanced metrics (e.g., "Picked as Death Bowler", "Capitalizing on dew factor").
+"""
+
+# ==========================================
+# 3. AGENT INITIALIZATION
+# ==========================================
+
+def get_agent():
+    llm = HuggingFaceEndpoint(
+        repo_id="Qwen/Qwen2.5-7B-Instruct",
+        task="text-generation",
+        max_new_tokens=1024,
+        do_sample=False,
+        huggingfacehub_api_token=os.environ.get("HF_TOKEN", "mock-token-for-testing")
+    )
+    chat_model = ChatHuggingFace(llm=llm)
+    
+    agent_executor = create_react_agent(
+        chat_model, 
+        tools, 
+        messages_modifier=SYSTEM_PROMPT
+    )
+    return agent_executor
+
+# ==========================================
+# 4. CONVERSATION HANDLER
+# ==========================================
+session_store: Dict[str, List[BaseMessage]] = {}
+
+def process_chat(session_id: str, user_message: str) -> str:
+    agent = get_agent()
+    if session_id not in session_store:
+        session_store[session_id] = []
+        
+    session_store[session_id].append(HumanMessage(content=user_message))
+    response = agent.invoke({"messages": session_store[session_id]})
+    updated_messages = response["messages"]
+    session_store[session_id] = updated_messages
+    
+    return updated_messages[-1].content
+
+# ==========================================
+# 5. LOCAL TESTING
+# ==========================================
+if __name__ == "__main__":
+    import uuid
+    if not os.environ.get("HF_TOKEN"):
+        os.environ["HF_TOKEN"] = "hf_mock_key_for_testing"
+        
+    print("--- Fantasy Manager Agent Initialization ---")
+    test_session = str(uuid.uuid4())
+    print("User: Build my fantasy team for today's match.")
+    
+    try:
+        reply = process_chat(test_session, "Build my fantasy team for today's match.")
+        print(f"Agent: {reply}")
+    except Exception as e:
+        print(f"Error during execution: {e}")

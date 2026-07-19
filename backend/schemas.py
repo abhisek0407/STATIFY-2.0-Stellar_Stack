@@ -119,10 +119,53 @@ class ChatRequest(BaseModel):
     session_id:Annotated[str,Field(description="Unique Identifier for the current fantasy team conversation")]
     message:Annotated[str,Field(description="User's query or instruction sent to the AI assistant")]
 
+from uuid import UUID
+
 class ChatResponse(BaseModel):
     session_id:Annotated[str,Field(description="Unique Identifier for the current fantasy team conversation",examples=["8a7fd34b-1122-45c1"])]
     response:Annotated[str,Field(description="Response from AI assistant to the user message",examples=[ "Virat Kohli has been replaced with Shubman Gill."])]
 
+# ==========================================================
+# RAG Context Schemas
+# ==========================================================
+
+class StadiumBase(BaseModel):
+    name: str
+    city: str
+    country: Optional[str] = "India"
+    batting_friendly: int = Field(..., ge=1, le=10)
+    spin_friendly: int = Field(..., ge=1, le=10)
+    pace_friendly: int = Field(..., ge=1, le=10)
+    avg_first_innings_score: Optional[int] = None
+    avg_score_range_min: Optional[int] = None
+    avg_score_range_max: Optional[int] = None
+    dew_factor: str
+    toss_advantage: str
+    fantasy_picks: str
+
+class StadiumStatisticsBase(BaseModel):
+    matches_played: int
+    average_first_innings_score: int
+    highest_score: int
+    lowest_score: int
+    chasing_record_percent: float
+    batting_first_win_percent: float
+    bowling_first_win_percent: float
+
+class WeatherConditionBase(BaseModel):
+    condition_name: str
+    effect_on_game: str
+    batting_benefit: int = Field(..., ge=1, le=10)
+    pace_benefit: int = Field(..., ge=1, le=10)
+    spin_benefit: int = Field(..., ge=1, le=10)
+    captain_choices: str
+    players_to_avoid: str
+
+class PlayerInjuryBase(BaseModel):
+    injury_name: str
+    common_effects: str
+    suitable_decision: str
+    fantasy_recommendation: str
 
 
 class BattingStats(BaseModel):
@@ -494,6 +537,26 @@ class FantasyPlayerResponse(BaseModel):
             description="Vice captain of the fantasy team",
             examples=[False]
         )
+    ]
+    captaincy_rating: Annotated[
+        Optional[float],
+        Field(default=None, description="Rating from 1-10 on ceiling/captaincy potential")
+    ]
+    risk_profile: Annotated[
+        Optional[str],
+        Field(default=None, description="Risk profile, e.g. 'Consistent' or 'Explosive'")
+    ]
+    scarcity_bump_applied: Annotated[
+        Optional[bool],
+        Field(default=False, description="Whether VORP scarcity bump was applied")
+    ]
+    tags: Annotated[
+        Optional[List[str]],
+        Field(default=[], description="Tactical synergy tags like '[Death Bowler]'")
+    ]
+    cumulative_score: Annotated[
+        Optional[float],
+        Field(default=None, description="The final fantasy score from the Secret Recipe algorithm")
     ]
 class AnalyzeResponse(BaseModel):
 
